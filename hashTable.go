@@ -21,6 +21,10 @@ type HashTable struct {
 	LinkArr [7]EmpLink
 }
 
+func (this *Emp) ShowEmp() {
+	fmt.Printf("链表%d 找到该雇员 %s\n", this.Id % 7, this.Name)
+}
+
 // 1. 添加员工的方法,保证添加时， 编号是从下到大
 func (this *EmpLink) Insert(emp *Emp) {
 	current := this.Head // 辅助指针
@@ -50,6 +54,44 @@ func (this *EmpLink) Insert(emp *Emp) {
 	emp.Next = current
 }
 
+// 根据 id 来删除
+func (this *EmpLink) DeleteEmp(id int) {
+	current := this.Head
+	var pre *Emp = nil // 这是一个辅助指针 pre 在 current 前面
+	// 删除前就进行过查询看是否存在，若不存在就不会到删除这一步，所以下面一步可以不写
+	if current == nil {
+		fmt.Printf("链表 %d 为空，无法删除\n", id)
+		return 
+	}
+	for {
+		if this.Head.Id == id {
+			// 如果头结点就是需要删除的结点
+			this.Head = current.Next
+			break
+		}
+		pre = current
+		current = current.Next
+		if current.Id == id {
+			pre.Next = current.Next
+			break
+		}
+	}
+}
+
+// 根据 id 来查找
+func (this *EmpLink) FindById(id int) *Emp {
+	current := this.Head
+	for {
+		if current != nil && current.Id == id {
+			return current
+		} else if current == nil {
+			break
+		}
+		current = current.Next
+	}
+	return nil
+}
+
 // 显示链表的信息
 func (this *EmpLink) ShowLink(no int) {
 	if this.Head == nil {
@@ -77,6 +119,19 @@ func (this *HashTable) Insert(emp *Emp) {
 	this.LinkArr[linkNo].Insert(emp)
 }
 
+// 根据 id 来删除
+func (this *HashTable) Delete(id int) {
+	linkNo := this.HashFun(id)
+	this.LinkArr[linkNo].DeleteEmp(id)
+}
+
+// 增加一个方法，完成查找
+func (this *HashTable) FindById(id int) *Emp {
+	// 使用散列函数，确定将该雇员应该在哪个链表
+	linkNo := this.HashFun(id)
+	return this.LinkArr[linkNo].FindById(id)
+}
+
 // 编写方法， 显示Hashtable的所有雇员
 func (this *HashTable) ShowAll() {
 	for i := 0; i < len(this.LinkArr); i++ {
@@ -97,6 +152,7 @@ func main() {
 	for {
 		fmt.Println("=================雇员系统菜单====================")
 		fmt.Println("input 表示添加雇员")
+		fmt.Println("delete表示添加雇员")
 		fmt.Println("show  表示显示雇员")
 		fmt.Println("find  表示查找雇员")
 		fmt.Println("exit  表示退出系统员")
@@ -113,16 +169,30 @@ func main() {
 					Name : name,
 				}
 				hashtable.Insert(emp)
+			case "delete" : 
+				fmt.Println("输入雇员 id")
+				fmt.Scanln(&id)
+				emp := hashtable.FindById(id)
+				if emp == nil {
+					fmt.Printf("id = %d 的雇员不存在\n", id)
+				} else {
+					hashtable.Delete(id)
+				}
 			case "show" :
 				hashtable.ShowAll()
 			case "find" :
-				
+				fmt.Println("请输入id号")
+				fmt.Scanln(&id)
+				emp := hashtable.FindById(id)
+				if emp == nil {
+					fmt.Printf("id = %d 的雇员不存在\n", id)
+				} else {
+					emp.ShowEmp()
+				}
 			case "exit" :
 				os.Exit(0)
 			default :
 				fmt.Println("输入有误")
-			
-			}
-
+		}
 	}
 }
