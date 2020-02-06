@@ -39,6 +39,11 @@ func (this *EmpLink) Insert(emp *Emp) {
 	for {
 		if current != nil {
 			// 比较
+			if this.Head.Id > emp.Id{
+				emp.Next = this.Head
+				this.Head = emp
+				return 
+			}
 			if current.Id > emp.Id {
 				// 找到位置
 				break
@@ -76,6 +81,23 @@ func (this *EmpLink) DeleteEmp(id int) {
 			break
 		}
 	}
+}
+
+// 根据 id 来更新
+func (this *EmpLink) updateEmp(emp *Emp) {
+	current := this.Head
+	var pre *Emp = nil // 这是一个辅助指针 pre 在 current 前面
+	for {
+		if current.Id == emp.Id {
+			pre = current.Next
+			fmt.Println("修改成功")
+			break
+		}
+		pre = current
+		current = current.Next
+	}
+	// bug
+	fmt.Println(pre)
 }
 
 // 根据 id 来查找
@@ -123,6 +145,12 @@ func (this *HashTable) Insert(emp *Emp) {
 func (this *HashTable) Delete(id int) {
 	linkNo := this.HashFun(id)
 	this.LinkArr[linkNo].DeleteEmp(id)
+}
+
+// 根据 id 来修改
+func (this *HashTable) update(emp *Emp) {
+	linkNo := this.HashFun(emp.Id)
+	this.LinkArr[linkNo].updateEmp(emp)
 }
 
 // 增加一个方法，完成查找
@@ -177,6 +205,21 @@ func main() {
 					fmt.Printf("id = %d 的雇员不存在\n", id)
 				} else {
 					hashtable.Delete(id)
+				}
+			case "update" :
+				fmt.Println("请输入id号")
+				fmt.Scanln(&id)
+				emp := hashtable.FindById(id)
+				if emp == nil {
+					fmt.Printf("id = %d 的雇员不存在\n", id)
+				} else {
+					fmt.Println("更新后的雇员姓名")
+					fmt.Scanln(&name)
+					emp := &Emp{
+						Id : id,
+						Name : name,
+					}
+					hashtable.update(emp)
 				}
 			case "show" :
 				hashtable.ShowAll()
