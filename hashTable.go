@@ -87,17 +87,24 @@ func (this *EmpLink) DeleteEmp(id int) {
 func (this *EmpLink) updateEmp(emp *Emp) {
 	current := this.Head
 	var pre *Emp = nil // 这是一个辅助指针 pre 在 current 前面
+	if current.Id == emp.Id {
+		emp.Next = current.Next
+		this.Head = emp
+		return 
+	}
+
 	for {
+		pre = current
+		current = current.Next
+		// 在更新之前我们已经查询过，只有存在该雇员时才能进入更新，所以current 不可能为空
 		if current.Id == emp.Id {
+			emp.Next = current.Next
+			pre.Next = emp
 			pre = current.Next
 			fmt.Println("修改成功")
 			break
 		}
-		pre = current
-		current = current.Next
 	}
-	// bug
-	fmt.Println(pre)
 }
 
 // 根据 id 来查找
@@ -179,11 +186,12 @@ func main() {
 	var hashtable HashTable
 	for {
 		fmt.Println("=================雇员系统菜单====================")
-		fmt.Println("input 表示添加雇员")
-		fmt.Println("delete表示添加雇员")
-		fmt.Println("show  表示显示雇员")
-		fmt.Println("find  表示查找雇员")
-		fmt.Println("exit  表示退出系统员")
+		fmt.Println("insert  表示添加雇员")
+		fmt.Println("delete 表示添加雇员")
+		fmt.Println("update 表示添加雇员")
+		fmt.Println("show   表示显示雇员")
+		fmt.Println("find   表示查找雇员")
+		fmt.Println("exit   表示退出系统员")
 		fmt.Println("请输入你的选择")
 		fmt.Scanln(&key)
 		switch key {
